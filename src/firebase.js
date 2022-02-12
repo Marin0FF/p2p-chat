@@ -11,7 +11,10 @@ const firebaseConfig = {
     appId: process.env.REACT_APP_FIREBASE_APP_ID
 }
 
-firebase.initializeApp(firebaseConfig);
-firebase.firestore();
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 
-export default firebase;
+const firestore =  firebase.firestore();
+
+export default firestore;
