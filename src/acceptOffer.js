@@ -30,14 +30,12 @@ async function acceptOffer(roomId) {
   // when a offer candidate is added to db, add it to peerConnection
   offerCandidates.onSnapshot((snapshot) => {
     snapshot.docChanges().forEach((change) => {
-      console.log(change);
       if (change.type === "added") {
         let data = change.doc.data();
         pc.addIceCandidate(new RTCIceCandidate(data));
       }
     });
   });
-  return roomData.id;
 }
 
 export default acceptOffer;

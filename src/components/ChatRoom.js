@@ -46,7 +46,8 @@ const ChatRoom = () => {
     },
     // 2nd user inputs the roomId (Answers the call), gets connected to the 1st peer
     joinChatRoom: (roomId) => {
-      setupStreams().then(() => acceptOffer(roomId).then(id => setRoomId(id)));
+      setRoomId(roomId)
+      setupStreams().then(() => acceptOffer(roomId));
     },
   };
 

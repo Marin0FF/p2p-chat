@@ -19,8 +19,8 @@ const ControlBar = ({ callbacks, roomId }) => {
     if (roomId) {
       return (
         <>
-          <div class="flex items-center">
-            <span class="text-lg font-bold">Room ID: {roomId}</span>
+          <div className="flex items-center">
+            <span className="text-lg font-bold">Room ID: {roomId}</span>
           </div>
           <button className="btn btn-error" id="answerButton">
             Disconnect
@@ -54,9 +54,9 @@ const ControlBar = ({ callbacks, roomId }) => {
     <>
       <Modal show={isOpen}>
         <div className="modal-box">
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">
                 Paste in the Id of the call you want to join and press accept.
               </span>
             </label>
@@ -64,7 +64,7 @@ const ControlBar = ({ callbacks, roomId }) => {
               type="text"
               placeholder="Room ID"
               ref={remoteRoomId}
-              class="input-bordered input mt-2"
+              className="input-bordered input mt-2"
             />
           </div>
           <div className="modal-action">
