@@ -8,6 +8,7 @@ import ControlBar from "./ControlsBar";
 const ChatRoom = () => {
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
+  const [roomId, setRoomId] = useState();
 
   const localSource = createRef();
   const remoteSource = createRef();
@@ -20,7 +21,7 @@ const ChatRoom = () => {
     remoteSource.current.srcObject = remoteStream;
   }, [remoteStream, remoteSource]);
 
-  async function setupLocalStream() {
+  async function setupStreams() {
     const userMedia = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: true,
@@ -41,27 +42,25 @@ const ChatRoom = () => {
     // creates peer conection and pushes the video steam of the  1st user
     createChatRoom: () => {
       // get 1st user webcam feed
-      setupLocalStream().then(() => createOffer());
+      setupStreams().then(() => createOffer().then(id => setRoomId(id)));
     },
     // 2nd user inputs the roomId (Answers the call), gets connected to the 1st peer
     joinChatRoom: (roomId) => {
-      setupLocalStream().then(() => acceptOffer(roomId));
-    }
-  }
+      setupStreams().then(() => acceptOffer(roomId).then(id => setRoomId(id)));
+    },
+  };
 
   return (
     <div>
-      <div className="videos">
-        <span>
-          <h3>Local Stream</h3>
-          <Video ref={localSource} isMuted={true} />
-        </span>
-        <span>
-          <h3>Remote Stream</h3>
-          <Video ref={remoteSource} />
-        </span>
+      <div className="md:flex items-center justify-center h-[100vh] max-h-screen">
+        <Video
+          ref={localSource}
+          isMuted={true}
+          className={!remoteStream ? "single-stream w-full" : null}
+        />
+        <Video ref={remoteSource} className={remoteStream ? "block" : 'hidden'} />
       </div>
-      <ControlBar callbacks={controlsFunctions} />
+      <ControlBar callbacks={controlsFunctions} roomId={roomId} />
     </div>
   );
 };

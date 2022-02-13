@@ -37,11 +37,10 @@ async function createOffer() {
       if (change.type === "added") {
         const candidate = new RTCIceCandidate(change.doc.data());
         pc.addIceCandidate(candidate);
-        console.log("candidate", candidate);
       }
     });
   });
-  console.log(roomDoc.id)
+
   return roomDoc.id;
 }
 

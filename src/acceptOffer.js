@@ -37,6 +37,7 @@ async function acceptOffer(roomId) {
       }
     });
   });
+  return roomData.id;
 }
 
 export default acceptOffer;

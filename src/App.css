@@ -1,16 +1,15 @@
+html {
+  background: rgb(39, 39, 39) !important;
+}
 body {
   text-align: center;
 }
 
 video {
-  width: 40vw;
-  height: 30vw;
-  margin: 2rem;
-  background: #2c3e50;
+  width: 50vw;
 }
 
-.videos {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.position-center {
+  left: 50%;
+  transform: translate(-50%, 0);
 }
