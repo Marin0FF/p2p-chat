@@ -1,23 +1,24 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, createRef } from "react";
 import pc from "../peerConnection";
 import createOffer from "../createOffer";
 import acceptOffer from "../acceptOffer";
+import Video from "./Video";
+import ControlBar from "./ControlsBar";
 
 const ChatRoom = () => {
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
 
-  const localSource = useRef();
-  const remoteSource = useRef();
-  const remoteRoomId = useRef();
+  const localSource = createRef();
+  const remoteSource = createRef();
 
   useEffect(() => {
     localSource.current.srcObject = localStream;
-  }, [localStream]);
+  }, [localStream, localSource]);
 
   useEffect(() => {
     remoteSource.current.srcObject = remoteStream;
-  }, [remoteStream]);
+  }, [remoteStream, remoteSource]);
 
   async function setupLocalStream() {
     const userMedia = await navigator.mediaDevices.getUserMedia({
@@ -36,14 +37,16 @@ const ChatRoom = () => {
       setRemoteStream(incomingStream);
     };
   }
-  // creates peer conection and pushes the video steam of the  1st user
-  function createChatRoom() {
-    // get 1st user webcam feed
-    setupLocalStream().then(() => createOffer());
-  }
-  // 2nd user inputs the roomId (Answers the call), gets connected to the 1st peer
-  function joinChatRoom() {
-    setupLocalStream().then(() => acceptOffer(remoteRoomId.current.value));
+  const controlsFunctions = {
+    // creates peer conection and pushes the video steam of the  1st user
+    createChatRoom: () => {
+      // get 1st user webcam feed
+      setupLocalStream().then(() => createOffer());
+    },
+    // 2nd user inputs the roomId (Answers the call), gets connected to the 1st peer
+    joinChatRoom: (roomId) => {
+      setupLocalStream().then(() => acceptOffer(roomId));
+    }
   }
 
   return (
@@ -51,34 +54,14 @@ const ChatRoom = () => {
       <div className="videos">
         <span>
           <h3>Local Stream</h3>
-          <video
-            id="webcamVideo"
-            ref={localSource}
-            autoPlay
-            playsInline
-            muted
-          ></video>
+          <Video ref={localSource} isMuted={true} />
         </span>
         <span>
           <h3>Remote Stream</h3>
-          <video
-            id="remoteVideo"
-            ref={remoteSource}
-            autoPlay
-            playsInline
-          ></video>
+          <Video ref={remoteSource} />
         </span>
       </div>
-      <div className="flex flex-col w-[30%] mx-auto">
-        <button id="callButton" className="mb-4 btn-primary" onClick={createChatRoom}>
-          Start Call
-        </button>
-
-        <input ref={remoteRoomId} id="callInput" />
-        <button onClick={joinChatRoom} className="btn-secondary mt-4" id="answerButton">
-          Answer
-        </button>
-      </div>
+      <ControlBar callbacks={controlsFunctions} />
     </div>
   );
 };
