@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import Modal from "./Modal";
 
-const ControlBar = ({ callbacks, roomId }) => {
+const ControlBar = ({ callbacks, connectionStatus, roomId }) => {
   const remoteRoomId = useRef();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -15,8 +15,12 @@ const ControlBar = ({ callbacks, roomId }) => {
     toggleModal();
   }
 
-  const ChatControls = (roomId) => {
-    if (roomId) {
+  const ChatControls = (connectionStatus) => {
+    // absytact into a switch
+    if (
+      (connectionStatus === "new" || connectionStatus === "connected") &&
+      (connectionStatus !== "failed" || connectionStatus !== "disconnected")
+    ) {
       return (
         <>
           <div className="flex items-center">
@@ -28,7 +32,7 @@ const ControlBar = ({ callbacks, roomId }) => {
         </>
       );
     }
-    if (!roomId) {
+    if (!connectionStatus || connectionStatus === 'disconnected') {
       return (
         <>
           <button
@@ -79,7 +83,7 @@ const ControlBar = ({ callbacks, roomId }) => {
       </Modal>
       <div className="position-center navbar rounded-box fixed bottom-0 mb-2 bg-neutral p-3 text-neutral-content shadow-lg">
         <div className="navbar-center mx-2 flex px-2">
-          <div className="flex items-stretch gap-5">{ChatControls(roomId)}</div>
+          <div className="flex items-stretch gap-5">{ChatControls(connectionStatus)}</div>
         </div>
       </div>
     </>

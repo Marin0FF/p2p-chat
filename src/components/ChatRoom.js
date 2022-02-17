@@ -8,7 +8,8 @@ import ControlBar from "./ControlsBar";
 const ChatRoom = () => {
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
-  const [roomId, setRoomId] = useState();
+  const [connectionStatus, setConnectionStatus] = useState(null);
+  const [roomId, setRoomId] = useState(null);
 
   const localSource = createRef();
   const remoteSource = createRef();
@@ -37,31 +38,44 @@ const ChatRoom = () => {
         .forEach((track) => incomingStream.addTrack(track));
       setRemoteStream(incomingStream);
     };
+    pc.onsignalingstatechange = (e) => setConnectionStatus(pc.connectionState)
+    pc.onconnectionstatechange = (e) => setConnectionStatus(pc.connectionState);
   }
+
   const controlsFunctions = {
     // creates peer conection and pushes the video steam of the  1st user
     createChatRoom: () => {
       // get 1st user webcam feed
-      setupStreams().then(() => createOffer().then(id => setRoomId(id)));
+      setupStreams().then(() => createOffer().then((id) => setRoomId(id)));
     },
     // 2nd user inputs the roomId (Answers the call), gets connected to the 1st peer
     joinChatRoom: (roomId) => {
-      setRoomId(roomId)
       setupStreams().then(() => acceptOffer(roomId));
     },
+    // end call
+    leaveChatRoom: () => {
+      // closeConnection
+    }
   };
 
   return (
     <div>
-      <div className="md:flex items-center justify-center h-[100vh] max-h-screen">
+      <div className="h-[100vh] max-h-screen items-center justify-center md:flex">
         <Video
           ref={localSource}
           isMuted={true}
           className={!remoteStream ? "single-stream w-full" : null}
         />
-        <Video ref={remoteSource} className={remoteStream ? "block" : 'hidden'} />
+        <Video
+          ref={remoteSource}
+          className={remoteStream ? "block" : "hidden"}
+        />
       </div>
-      <ControlBar callbacks={controlsFunctions} roomId={roomId} />
+      <ControlBar
+        callbacks={controlsFunctions}
+        roomId={roomId}
+        connectionStatus={connectionStatus}
+      />
     </div>
   );
 };
