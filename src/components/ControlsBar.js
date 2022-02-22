@@ -26,7 +26,7 @@ const ControlBar = ({ callbacks, connectionStatus, roomId }) => {
           <div className="flex items-center">
             <span className="text-lg font-bold">Room ID: {roomId}</span>
           </div>
-          <button className="btn btn-error" id="answerButton">
+          <button className="btn btn-error" id="answerButton" onClick={callbacks.leaveChatRoom}>
             Disconnect
           </button>
         </>
