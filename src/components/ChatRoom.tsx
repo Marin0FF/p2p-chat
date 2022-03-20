@@ -5,10 +5,10 @@ import acceptOffer from "../acceptOffer";
 import Video from "./Video";
 import ControlBar from "./ControlsBar";
 
-const ChatRoom = () => {
-  const [connectionStatus, setConnectionStatus] = useState(null);
-  const [mediaStreams, setMediaStreams] = useState([]);
-  const [roomId, setRoomId] = useState(null);
+const ChatRoom: React.FC = () => {
+  const [connectionStatus, setConnectionStatus] = useState<RTCPeerConnectionState | null>(null);
+  const [mediaStreams, setMediaStreams] = useState<Array<MediaStream>>();
+  const [roomId, setRoomId] = useState<string>();
 
   async function setupStreams() {
     const userMedia = await navigator.mediaDevices.getUserMedia({
@@ -25,9 +25,9 @@ const ChatRoom = () => {
       e.streams[0]
         .getTracks()
         .forEach((track) => incomingStream.addTrack(track));
-      setMediaStreams((current) => [current[0], incomingStream]);
+      setMediaStreams((current) => current ? [current[0], incomingStream] : current);
     };
-    pc.onremovetrack = (e) => console.log(e);
+    // pc.onremovetrack = (e) => console.log(e);
     // remove e.track
     pc.onsignalingstatechange = (e) => {
       console.log(e, pc.connectionState);
@@ -39,21 +39,24 @@ const ChatRoom = () => {
     };
   }
 
-  const controlsFunctions = {
+  const controller = {
     // creates peer conection and pushes the video steam of the  1st user
     createChatRoom: () => {
       // get 1st user webcam feed
       setupStreams().then(() => createOffer().then((id) => setRoomId(id)));
     },
     // 2nd user inputs the roomId (Answers the call), gets connected to the 1st peer
-    joinChatRoom: (roomId) => {
+    joinChatRoom: (roomId: string) => {
       setRoomId(roomId);
       setupStreams().then(() => acceptOffer(roomId));
     },
     // end call
     leaveChatRoom: () => {
+      // abstract into removeCandidate
       pc.getSenders().forEach(track => pc.removeTrack(track))
+      pc.close()
       // remove all streams
+      // call snapshot event
     },
   };
 
@@ -66,12 +69,12 @@ const ChatRoom = () => {
               key={stream.id}
               stream={stream}
               isMuted={i === 0 ? true : false}
-              className={stream.length === 1 ? "single-stream w-full" : null}
+              className={mediaStreams.length === 1 ? "single-stream w-full" : null}
             />
           ))}
       </div>
       <ControlBar
-        callbacks={controlsFunctions}
+        controller={controller}
         roomId={roomId}
         connectionStatus={connectionStatus}
       />

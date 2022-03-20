@@ -1,7 +1,7 @@
 import pc from "./peerConnection";
 import firestore from "./firebase";
 
-async function acceptOffer(roomId) {
+async function acceptOffer(roomId: string): Promise<void> {
   const roomDoc = firestore.collection("rooms").doc(roomId);
   const answerCandidates = roomDoc.collection("answerCandidates");
   const offerCandidates = roomDoc.collection("offerCandidates");
@@ -11,13 +11,13 @@ async function acceptOffer(roomId) {
     event.candidate && answerCandidates.add(event.candidate.toJSON());
   };
 
-  const roomData = (await roomDoc.get()).data();
+  const roomData: any = (await roomDoc.get()).data();
 
   // get the offer from db, set remote description
-  const offerDescription = roomData.offer;
+  const offerDescription: RTCSessionDescriptionInit = roomData.offer;
   await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
 
-  const answerDescription = await pc.createAnswer();
+  const answerDescription: RTCSessionDescriptionInit = await pc.createAnswer();
   await pc.setLocalDescription(answerDescription);
 
   const answer = {

@@ -1,7 +1,7 @@
 import pc from "./peerConnection";
 import firestore from "./firebase";
 
-async function createOffer() {
+async function createOffer(): Promise<string> {
   const roomDoc = firestore.collection("rooms").doc();
   const offerCandidates = roomDoc.collection("offerCandidates");
   const answerCandidates = roomDoc.collection("answerCandidates");
@@ -12,7 +12,7 @@ async function createOffer() {
   };
 
   // Create offer
-  const offerDescription = await pc.createOffer();
+  const offerDescription: RTCLocalSessionDescriptionInit = await pc.createOffer();
   await pc.setLocalDescription(offerDescription);
 
   const offer = {

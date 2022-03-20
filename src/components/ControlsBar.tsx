@@ -1,9 +1,22 @@
 import React, { useRef, useState } from "react";
 import Modal from "./Modal";
+import checkStatus from '../checkStatus'
 
-const ControlBar = ({ callbacks, connectionStatus, roomId }) => {
-  const remoteRoomId = useRef();
-  const [isOpen, setIsOpen] = useState(false);
+interface Props {
+  controller: ControllerMethods;
+  connectionStatus: string | null;
+  roomId?: string | null;
+}
+
+interface ControllerMethods {
+  createChatRoom: () => void;
+  joinChatRoom: (roomId: string) => void;
+  leaveChatRoom: () => void
+}
+
+const ControlBar: React.FC<Props> = ({ controller, connectionStatus, roomId }) => {
+  const remoteRoomId = useRef<HTMLInputElement>(null);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   // Modal state controlers
   function toggleModal() {
@@ -11,34 +24,35 @@ const ControlBar = ({ callbacks, connectionStatus, roomId }) => {
   }
 
   function join() {
-    callbacks.joinChatRoom(remoteRoomId.current.value);
-    toggleModal();
+    if (remoteRoomId && remoteRoomId.current) {
+      controller.joinChatRoom(remoteRoomId.current.value);
+      toggleModal();
+    }
   }
 
-  const ChatControls = (connectionStatus) => {
+  const ChatControls = (connectionStatus: string | null) => {
     // absytact into a switch
     if (
-      (connectionStatus === "new" || connectionStatus === "connected") &&
-      (connectionStatus !== "failed" || connectionStatus !== "disconnected")
+      checkStatus(connectionStatus)
     ) {
       return (
         <>
           <div className="flex items-center">
             <span className="text-lg font-bold">Room ID: {roomId}</span>
           </div>
-          <button className="btn btn-error" id="answerButton" onClick={callbacks.leaveChatRoom}>
+          <button className="btn btn-error" id="answerButton" onClick={controller.leaveChatRoom}>
             Disconnect
           </button>
         </>
       );
     }
-    if (!connectionStatus || connectionStatus === 'disconnected') {
+    if (!checkStatus(connectionStatus)) {
       return (
         <>
           <button
             id="callButton"
             className="btn btn-primary"
-            onClick={callbacks.createChatRoom}
+            onClick={controller.createChatRoom}
           >
             Start Call
           </button>
