@@ -1,4 +1,4 @@
-import pc from "./peerConnection";
+import { pc } from "./peerConnection";
 import firestore from "./firebase";
 
 async function createOffer(): Promise<string> {
@@ -12,7 +12,8 @@ async function createOffer(): Promise<string> {
   };
 
   // Create offer
-  const offerDescription: RTCLocalSessionDescriptionInit = await pc.createOffer();
+  const offerDescription: RTCLocalSessionDescriptionInit =
+    await pc.createOffer();
   await pc.setLocalDescription(offerDescription);
 
   const offer = {

@@ -9,6 +9,10 @@ const servers: RTCConfiguration = {
   iceCandidatePoolSize: 10,
 };
 
-const pc = new RTCPeerConnection(servers);
+let pc = new RTCPeerConnection(servers);
 
-export default pc;
+function resetPeerConnection(): void {
+  pc = new RTCPeerConnection(servers);
+}
+
+export { pc, resetPeerConnection };

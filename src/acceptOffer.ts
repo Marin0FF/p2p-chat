@@ -1,4 +1,4 @@
-import pc from "./peerConnection";
+import { pc } from "./peerConnection";
 import firestore from "./firebase";
 
 async function acceptOffer(roomId: string): Promise<void> {
