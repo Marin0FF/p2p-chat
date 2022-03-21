@@ -1,13 +1,17 @@
-import React, { useState } from "react";
-import pc from "../peerConnection";
+/* TODO */
+// clean up code 🧹
+// abstract into destroyConnection
+import React, { useEffect, useState } from "react";
+import { pc, resetPeerConnection } from "../peerConnection";
 import createOffer from "../createOffer";
 import acceptOffer from "../acceptOffer";
 import Video from "./Video";
 import ControlBar from "./ControlsBar";
+import checkStatus from "../checkStatus";
 
 const ChatRoom: React.FC = () => {
-  const [connectionStatus, setConnectionStatus] = useState<RTCPeerConnectionState | null>(null);
-  const [mediaStreams, setMediaStreams] = useState<Array<MediaStream>>();
+  const [connectionStatus, setConnectionStatus] = useState<RTCPeerConnectionState | null | 'disconnected'>(null);
+  const [mediaStreams, setMediaStreams] = useState<Array<MediaStream> | null>();
   const [roomId, setRoomId] = useState<string>();
 
   async function setupStreams() {
@@ -39,6 +43,18 @@ const ChatRoom: React.FC = () => {
     };
   }
 
+  useEffect(() => {
+    if (!checkStatus(connectionStatus)) {
+      // connection status is closed
+      if (connectionStatus === 'closed') {
+        setMediaStreams(null);
+      } else {
+        setMediaStreams((current) => current ? [current[0]] : current);
+      }
+      resetPeerConnection()
+    }
+  }, [connectionStatus])
+
   const controller = {
     // creates peer conection and pushes the video steam of the  1st user
     createChatRoom: () => {
@@ -52,10 +68,11 @@ const ChatRoom: React.FC = () => {
     },
     // end call
     leaveChatRoom: () => {
-      // abstract into removeCandidate
-      pc.getSenders().forEach(track => pc.removeTrack(track))
-      pc.close()
-      // remove all streams
+      //pc.getSenders().forEach(track => pc.removeTrack(track))
+      pc.close();
+      if (mediaStreams) mediaStreams[0].getTracks().forEach(track => track.stop())
+      setConnectionStatus('closed')
+      console.log(pc);
       // call snapshot event
     },
   };
