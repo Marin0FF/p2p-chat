@@ -1,10 +1,10 @@
 /* TODO */
 // clean up code 🧹
-// abstract into destroyConnection
 import React, { useEffect, useState } from "react";
 import { pc, resetPeerConnection } from "../peerConnection";
 import createOffer from "../createOffer";
 import acceptOffer from "../acceptOffer";
+import destroyOffer from "../destroyOffer";
 import Video from "./Video";
 import ControlBar from "./ControlsBar";
 import checkStatus from "../checkStatus";
@@ -12,7 +12,7 @@ import checkStatus from "../checkStatus";
 const ChatRoom: React.FC = () => {
   const [connectionStatus, setConnectionStatus] = useState<RTCPeerConnectionState | null | 'disconnected'>(null);
   const [mediaStreams, setMediaStreams] = useState<Array<MediaStream> | null>();
-  const [roomId, setRoomId] = useState<string>();
+  const [roomId, setRoomId] = useState<string | null>(null);
 
   async function setupStreams() {
     const userMedia = await navigator.mediaDevices.getUserMedia({
@@ -44,16 +44,16 @@ const ChatRoom: React.FC = () => {
   }
 
   useEffect(() => {
-    if (!checkStatus(connectionStatus)) {
-      // connection status is closed
-      if (connectionStatus === 'closed') {
-        setMediaStreams(null);
-      } else {
-        setMediaStreams((current) => current ? [current[0]] : current);
-      }
-      resetPeerConnection()
+    // teardown state when connection status is set to disconnected
+    if (connectionStatus === 'disconnected') {
+      if (mediaStreams) mediaStreams[0].getTracks().forEach(track => track.stop())
+      setMediaStreams(null);
+      pc.close();
+      setRoomId(null)
+      setConnectionStatus(null)
+      resetPeerConnection();
     }
-  }, [connectionStatus])
+  }, [connectionStatus, mediaStreams])
 
   const controller = {
     // creates peer conection and pushes the video steam of the  1st user
@@ -67,13 +67,11 @@ const ChatRoom: React.FC = () => {
       setupStreams().then(() => acceptOffer(roomId));
     },
     // end call
-    leaveChatRoom: () => {
-      //pc.getSenders().forEach(track => pc.removeTrack(track))
-      pc.close();
-      if (mediaStreams) mediaStreams[0].getTracks().forEach(track => track.stop())
-      setConnectionStatus('closed')
+    leaveChatRoom: (roomId: string) => {
+      destroyOffer(roomId).then(() => {
+        setConnectionStatus('disconnected')
+      })
       console.log(pc);
-      // call snapshot event
     },
   };
 

@@ -11,7 +11,7 @@ interface Props {
 interface ControllerMethods {
   createChatRoom: () => void;
   joinChatRoom: (roomId: string) => void;
-  leaveChatRoom: () => void
+  leaveChatRoom: (roomId: string) => void
 }
 
 const ControlBar: React.FC<Props> = ({ controller, connectionStatus, roomId }) => {
@@ -30,6 +30,10 @@ const ControlBar: React.FC<Props> = ({ controller, connectionStatus, roomId }) =
     }
   }
 
+  function disconnect() {
+    if(roomId) controller.leaveChatRoom(roomId);
+  }
+
   const ChatControls = (connectionStatus: string | null) => {
     // absytact into a switch
     if (
@@ -40,7 +44,7 @@ const ControlBar: React.FC<Props> = ({ controller, connectionStatus, roomId }) =
           <div className="flex items-center">
             <span className="text-lg font-bold">Room ID: {roomId}</span>
           </div>
-          <button className="btn btn-error" id="answerButton" onClick={controller.leaveChatRoom}>
+          <button className="btn btn-error" id="answerButton" onClick={disconnect}>
             Disconnect
           </button>
         </>
