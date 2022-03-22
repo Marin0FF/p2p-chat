@@ -7,7 +7,6 @@ import acceptOffer from "../acceptOffer";
 import destroyOffer from "../destroyOffer";
 import Video from "./Video";
 import ControlBar from "./ControlsBar";
-import checkStatus from "../checkStatus";
 
 const ChatRoom: React.FC = () => {
   const [connectionStatus, setConnectionStatus] = useState<RTCPeerConnectionState | null | 'disconnected'>(null);
