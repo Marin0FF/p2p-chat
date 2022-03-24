@@ -1,5 +1,3 @@
-/* TODO */
-// clean up code 🧹
 import React, { useEffect, useState } from "react";
 import { pc, resetPeerConnection } from "../peerConnection";
 import createOffer from "../createOffer";
@@ -19,7 +17,6 @@ const ChatRoom: React.FC = () => {
       audio: true,
     });
     userMedia.getTracks().forEach((track) => pc.addTrack(track, userMedia));
-    //setLocalStream(userMedia);
     setMediaStreams([userMedia]);
     // when a new track has been added to the peer conection
     // set the value to remoteStream
@@ -30,14 +27,13 @@ const ChatRoom: React.FC = () => {
         .forEach((track) => incomingStream.addTrack(track));
       setMediaStreams((current) => current ? [current[0], incomingStream] : current);
     };
-    // pc.onremovetrack = (e) => console.log(e);
-    // remove e.track
+    // interface returns a string value describing the state of the signaling process on the local end of the connection.
     pc.onsignalingstatechange = (e) => {
-      console.log(e, pc.connectionState);
       setConnectionStatus(pc.connectionState);
     };
+    // interface indicates the current state of the peer connection by returning one of the following string values:
+    // new, connecting, connected, disconnected, failed, or closed.
     pc.onconnectionstatechange = (e) => {
-      console.log(e, pc.connectionState);
       setConnectionStatus(pc.connectionState);
     };
   }
@@ -65,12 +61,11 @@ const ChatRoom: React.FC = () => {
       setRoomId(roomId);
       setupStreams().then(() => acceptOffer(roomId));
     },
-    // end call
+    // ends call
     leaveChatRoom: (roomId: string) => {
       destroyOffer(roomId).then(() => {
         setConnectionStatus('disconnected')
       })
-      console.log(pc);
     },
   };
 

@@ -35,7 +35,6 @@ const ControlBar: React.FC<Props> = ({ controller, connectionStatus, roomId }) =
   }
 
   const ChatControls = (connectionStatus: string | null) => {
-    // absytact into a switch
     if (
       checkStatus(connectionStatus)
     ) {
